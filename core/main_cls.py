@@ -22,7 +22,7 @@ from data import ModelNet40
 from models.curvenet_cls import CurveNet
 import numpy as np
 from torch.utils.data import DataLoader
-from util import cal_loss, IOStream
+from util import cal_loss, IOStream,so3_rotate,azi_rotate
 import sklearn.metrics as metrics
 
 
@@ -53,12 +53,22 @@ def train(args, io):
     test_loader = DataLoader(ModelNet40(partition='test', num_points=args.num_points), num_workers=8,
                              batch_size=args.test_batch_size, shuffle=False, drop_last=False)
 
-    device = torch.device("cuda" if args.cuda else "cpu")
-    io.cprint("Let's use" + str(torch.cuda.device_count()) + "GPUs!")
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    print("arg_gpu:",args.gpu)
+    # device = torch.cuda.current_device()
+    device = torch.device(type="cuda" if args.cuda else "cpu", index = int(args.gpu))
+    # device_ids = range(torch.cuda.device_count())
+    # print("device_ids:",device_ids)
+    print("device:",device)
+
+
+
+    # io.cprint("Let's use" + str(torch.cuda.device_count()) + "GPUs!")
     
-    # create model
-    model = CurveNet().to(device)
-    model = nn.DataParallel(model)
+    #create model
+    model = CurveNet(args=args).to(device)
+
+    # model = nn.DataParallel(model)
 
     if args.use_sgd:
         io.cprint("Use SGD")
@@ -71,7 +81,7 @@ def train(args, io):
         scheduler = CosineAnnealingLR(opt, args.epochs, eta_min=1e-3)
     elif args.scheduler == 'step':
         scheduler = MultiStepLR(opt, [120, 160], gamma=0.1)
-    
+
     criterion = cal_loss
 
     best_test_acc = 0
@@ -86,6 +96,8 @@ def train(args, io):
         train_true = []
         for data, label in train_loader:
             data, label = data.to(device), label.to(device).squeeze()
+            data = azi_rotate(data)
+            # print("data_device:",data.device)
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
             opt.zero_grad()
@@ -151,9 +163,17 @@ def test(args, io):
     device = torch.device("cuda" if args.cuda else "cpu")
 
     #Try to load models
-    model = CurveNet().to(device)
+    model = CurveNet(args).to(device)
     model = nn.DataParallel(model)
-    model.load_state_dict(torch.load(args.model_path))
+    model.module.load_state_dict(torch.load(args.model_path,map_location='cuda:0'))
+    # checkpoint = torch.load(args.model_path)
+    # from collections import OrderedDict
+    # new_state_dict = OrderedDict()
+    # for k,v in checkpoint['state_dict'].items():
+    #     name = k[7:]
+    #     new_state_dict[name] = v
+    #
+    # model.load_state_dict(checkpoint['state_dict'])
 
     model = model.eval()
     test_acc = 0.0
@@ -161,8 +181,8 @@ def test(args, io):
     test_true = []
     test_pred = []
     for data, label in test_loader:
-
         data, label = data.to(device), label.to(device).squeeze()
+        data = azi_rotate(data)
         data = data.permute(0, 2, 1)
         batch_size = data.size()[0]
         logits = model(data)
@@ -206,6 +226,7 @@ if __name__ == "__main__":
                         help='num of points to use')
     parser.add_argument('--model_path', type=str, default='', metavar='N',
                         help='Pretrained model path')
+    parser.add_argument('--gpu', type=str, default='0', help='specify gpu device')
     args = parser.parse_args()
 
     seed = np.random.randint(1, 10000)
@@ -220,12 +241,11 @@ if __name__ == "__main__":
     io.cprint('random seed is: ' + str(seed))
     
     args.cuda = not args.no_cuda and torch.cuda.is_available()
-    
-    if args.cuda:
-        io.cprint(
-            'Using GPU : ' + str(torch.cuda.current_device()) + ' from ' + str(torch.cuda.device_count()) + ' devices')
-    else:
-        io.cprint('Using CPU')
+    # if args.cuda:
+    #     io.cprint(
+    #         'Using GPU : ' + str(torch.cuda.current_device()) + ' from ' + str(torch.cuda.device_count()) + ' devices')
+    # else:
+    #     io.cprint('Using CPU')
 
     if not args.eval:
         train(args, io)

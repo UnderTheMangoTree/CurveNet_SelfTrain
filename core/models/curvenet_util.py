@@ -120,7 +120,7 @@ def query_ball_point(radius, nsample, xyz, new_xyz):
     group_idx[mask] = group_first[mask]
     return group_idx
 
-def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
+def sample_and_group(args,npoint, radius, nsample, xyz, points, returnfps=False):
     """
     Input:
         npoint:
@@ -133,13 +133,18 @@ def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
         new_points: sampled points data, [B, npoint, nsample, 3+D]
     """
     new_xyz = index_points(xyz, farthest_point_sample(xyz, npoint))
-    torch.cuda.empty_cache()
+    cuda_name = torch.device(type="cuda" if args.cuda else "cpu", index = int(args.gpu))
+
+    with torch.cuda.device(cuda_name):
+        torch.cuda.empty_cache()
 
     idx = query_ball_point(radius, nsample, xyz, new_xyz)
-    torch.cuda.empty_cache()
+    with torch.cuda.device(cuda_name):
+        torch.cuda.empty_cache()
 
     new_points = index_points(points, idx)
-    torch.cuda.empty_cache()
+    with torch.cuda.device(cuda_name):
+        torch.cuda.empty_cache()
 
     if returnfps:
         return new_xyz, new_points, idx
@@ -178,10 +183,10 @@ class Attention_block(nn.Module):
 
 
 class LPFA(nn.Module):
-    def __init__(self, in_channel, out_channel, k, mlp_num=2, initial=False):
+    def __init__(self, in_channel, out_channel, k, args,mlp_num=2, initial=False):
         super(LPFA, self).__init__()
         self.k = k
-        self.device = torch.device('cuda')
+        self.device = torch.device(type="cuda" if args.cuda else "cpu", index = int(args.gpu))
         self.initial = initial
 
         if not initial:
@@ -198,7 +203,7 @@ class LPFA(nn.Module):
         self.mlp = nn.Sequential(*self.mlp)        
 
     def forward(self, x, xyz, idx=None):
-        x = self.group_feature(x, xyz, idx)
+        x = self.group_feature(x, xyz, idx) ##(B,C,N,K)
         x = self.mlp(x)
 
         if self.initial:
@@ -215,6 +220,7 @@ class LPFA(nn.Module):
             idx = knn(xyz, k=self.k)[:,:,:self.k]  # (batch_size, num_points, k)
 
         idx_base = torch.arange(0, batch_size, device=self.device).view(-1, 1, 1) * num_points
+
         idx = idx + idx_base
         idx = idx.view(-1)
 
@@ -224,7 +230,7 @@ class LPFA(nn.Module):
         points = xyz.view(batch_size, num_points, 1, 3).expand(-1, -1, self.k, -1)  # bs, n, k, 3
 
         point_feature = torch.cat((points, point_feature, point_feature - points),
-                                dim=3).permute(0, 3, 1, 2).contiguous()
+                                dim=3).permute(0, 3, 1, 2).contiguous() ##this is why the channel == 9
 
         if self.initial:
             return point_feature
@@ -238,7 +244,7 @@ class LPFA(nn.Module):
         feature = feature.permute(0, 3, 1, 2).contiguous()
         point_feature = self.xyz2feature(point_feature)  #bs, c, n, k
         feature = F.leaky_relu(feature + point_feature, 0.2)
-        return feature #bs, c, n, k
+        return feature #bs, c, n, k （batchsize,channle,N,KNN）
 
 
 class PointNetFeaturePropagation(nn.Module):
@@ -306,7 +312,7 @@ class PointNetFeaturePropagation(nn.Module):
 
 
 class CIC(nn.Module):
-    def __init__(self, npoint, radius, k, in_channels, output_channels, bottleneck_ratio=2, mlp_num=2, curve_config=None):
+    def __init__(self, npoint, radius, k, in_channels, output_channels, args,bottleneck_ratio=2, mlp_num=2, curve_config=None):
         super(CIC, self).__init__()
         self.in_channels = in_channels
         self.output_channels = output_channels
@@ -320,7 +326,7 @@ class CIC(nn.Module):
         self.use_curve = curve_config is not None
         if self.use_curve:
             self.curveaggregation = CurveAggregation(planes)
-            self.curvegrouping = CurveGrouping(planes, k, curve_config[0], curve_config[1])
+            self.curvegrouping = CurveGrouping(args,planes, k, curve_config[0], curve_config[1])
 
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels,
@@ -344,9 +350,9 @@ class CIC(nn.Module):
 
         self.relu = nn.LeakyReLU(negative_slope=0.2, inplace=True)
 
-        self.maxpool = MaskedMaxPool(npoint, radius, k)
+        self.maxpool = MaskedMaxPool(args,npoint, radius, k)
 
-        self.lpfa = LPFA(planes, planes, k, mlp_num=mlp_num, initial=False)
+        self.lpfa = LPFA(planes, planes, k, args=args,mlp_num=mlp_num, initial=False)
 
     def forward(self, xyz, x):
  
@@ -443,7 +449,7 @@ class CurveAggregation(nn.Module):
 
 
 class CurveGrouping(nn.Module):
-    def __init__(self, in_channel, k, curve_num, curve_length):
+    def __init__(self, args,in_channel, k, curve_num, curve_length):
         super(CurveGrouping, self).__init__()
         self.curve_num = curve_num
         self.curve_length = curve_length
@@ -452,7 +458,7 @@ class CurveGrouping(nn.Module):
 
         self.att = nn.Conv1d(in_channel, 1, kernel_size=1, bias=False)
 
-        self.walk = Walk(in_channel, k, curve_num, curve_length)
+        self.walk = Walk(args,in_channel, k, curve_num, curve_length)
 
     def forward(self, x, xyz, idx):
         # starting point selection in self attention style
@@ -471,14 +477,15 @@ class CurveGrouping(nn.Module):
 
 
 class MaskedMaxPool(nn.Module):
-    def __init__(self, npoint, radius, k):
+    def __init__(self, args,npoint, radius, k):
         super(MaskedMaxPool, self).__init__()
         self.npoint = npoint
         self.radius = radius
         self.k = k
+        self.args = args
 
     def forward(self, xyz, features):
-        sub_xyz, neighborhood_features = sample_and_group(self.npoint, self.radius, self.k, xyz, features.transpose(1,2))
+        sub_xyz, neighborhood_features = sample_and_group(self.args,self.npoint, self.radius, self.k, xyz, features.transpose(1,2))
 
         neighborhood_features = neighborhood_features.permute(0, 3, 1, 2).contiguous()
         sub_features = F.max_pool2d(

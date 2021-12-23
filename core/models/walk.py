@@ -41,11 +41,12 @@ class Walk(nn.Module):
     '''
     Walk in the cloud
     '''
-    def __init__(self, in_channel, k, curve_num, curve_length):
+    def __init__(self, args, in_channel, k, curve_num, curve_length):
         super(Walk, self).__init__()
         self.curve_num = curve_num
         self.curve_length = curve_length
         self.k = k
+        self.args = args
 
         self.agent_mlp = nn.Sequential(
             nn.Conv2d(in_channel * 2,
@@ -85,7 +86,9 @@ class Walk(nn.Module):
         x = x.transpose(1,2).contiguous() # bs, n, c
 
         flatten_x = x.view(bn * tot_points, -1)
-        batch_offset = torch.arange(0, bn, device=torch.device('cuda')).detach() * tot_points
+        # batch_offset = torch.arange(0, bn, device=torch.device('cuda')).detach() * tot_points
+
+        batch_offset = torch.arange(0, bn, device=torch.device(type="cuda" if self.args.cuda else "cpu", index = int(self.args.gpu))).detach() * tot_points
 
         # indices of neighbors for the starting points
         tmp_adj = (adj + batch_offset.view(-1,1,1)).view(adj.size(0)*adj.size(1),-1) #bs, n, k

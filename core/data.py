@@ -21,7 +21,8 @@ from torch.utils.data import Dataset
 
 
 # change this to your data root
-DATA_DIR = '../data/'
+DATA_DIR = '/home/dell/SL/Programs/RI/rinet/rinet/data/'
+# DATA_DIR ='/opt/data/private/SL/RI_l2g/rinet/rinet/data'
 
 def download_modelnet40():
     if not os.path.exists(DATA_DIR):

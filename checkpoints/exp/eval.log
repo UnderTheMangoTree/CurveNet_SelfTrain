@@ -1,0 +1,46 @@
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 6446
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5057
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5213
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 7152
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 8610
+Test :: test acc: 0.040519
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5921
+Test :: test acc: 0.040519
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 3822
+Test :: test acc: 0.936791
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 617
+Test :: test acc: 0.174230
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 669
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 2600
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 4338
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 1257
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5452
+Test :: test acc: 0.892220
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccS/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5556
+Test :: test acc: 0.881686
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccZ/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 4513
+Test :: test acc: 0.905997
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/ccZ/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 51
+Test :: test acc: 0.364263
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 7001
+Test :: test acc: 0.185981
+Namespace(batch_size=32, dataset='modelnet40', epochs=200, eval=True, exp_name='exp', gpu='0', lr=0.001, model_path='/home/dell/SL/Programs/CurveNet/CurveNet/checkpoints/cc1/models/model.t7', momentum=0.9, no_cuda=False, num_points=1024, scheduler='cos', test_batch_size=16, use_sgd=True)
+random seed is: 5105
+Test :: test acc: 0.352917
